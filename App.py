@@ -14,9 +14,8 @@ print(os.getcwd())
 
 
 import streamlit as st
-
 import pandas as pd
-import numpy as np
+import os
 
 
 # Define the instruments and their corresponding column names
@@ -35,7 +34,10 @@ def generate_excel_file(instrument):
     df = pd.DataFrame(columns=columns)
 
     # Save the DataFrame to an Excel file
-    df.to_excel(f'{instrument}_data.xlsx', index=False)
+    filename = f'{instrument}_data.xlsx'
+    df.to_excel(filename, index=False)
+
+    return filename
 
 # Main app
 def main():
@@ -44,11 +46,16 @@ def main():
     # Display a dropdown to select the instrument
     instrument = st.selectbox('Select an instrument', list(instruments.keys()))
 
-# Generate the Excel file when a button is clicked
+    # Generate the Excel file when a button is clicked
     if st.button('Generate Excel'):
-        generate_excel_file(instrument)
+        filename = generate_excel_file(instrument)
         st.success(f'Excel file for {instrument} has been generated!')
+
+        # Provide a download link to the file
+        st.download_button('Download Excel File', filename)
 
 if __name__ == '__main__':
     main()
+
+    
     
