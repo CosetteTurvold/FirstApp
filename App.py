@@ -57,4 +57,6 @@ def main():
         b64 = base64.b64encode(data).decode()
         href = f'<a href="data:application/octet-stream;base64,{b64}" download="{filename}">Download Excel File</a>'
         st.markdown(href, unsafe_allow_html=True)
-    
+
+if __name__ == '__main__':
+    main()
