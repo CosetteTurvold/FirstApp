@@ -1,5 +1,5 @@
 import os
-target_directory = "/Users/cturvold/Documents/Python"
+target_directory = "/CosetteTurvold/FirstApp"
 os.chdir(target_directory)
 print(os.getcwd())
 
