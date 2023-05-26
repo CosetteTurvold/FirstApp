@@ -1,6 +1,7 @@
 import os
-target_directory = "/CosetteTurvold/FirstApp"
-os.chdir(target_directory)
+target_directory = "FirstApp"
+base_directory = os.getcwd()
+os.chdir(os.path.join(base_directory, target_directory))
 print(os.getcwd())
 
 #set target directory to web-based
