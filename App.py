@@ -1,5 +1,5 @@
 import os
-target_directory = "FirstApp"
+target_directory = "/app/firstapp"
 base_directory = os.getcwd()
 os.chdir(os.path.join(base_directory, target_directory))
 print(os.getcwd())
