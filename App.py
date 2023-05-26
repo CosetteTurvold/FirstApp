@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri May 26 10:57:46 2023
 
-@author: cturvold
-"""
+import os
+target_directory = "/Users/cturvold/Documents/Python"
+os.chdir(target_directory)
+print(os.getcwd())
+
+
 import streamlit as st
 
 import pandas as pd
 import numpy as np
+
 
 # Define the instruments and their corresponding column names
 instruments = {
@@ -42,3 +45,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
