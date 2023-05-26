@@ -15,7 +15,7 @@
 
 import streamlit as st
 import pandas as pd
-import os
+import base64
 
 
 # Define the instruments and their corresponding column names
@@ -52,10 +52,9 @@ def main():
         st.success(f'Excel file for {instrument} has been generated!')
 
         # Provide a download link to the file
-        st.download_button('Download Excel File', filename)
-
-if __name__ == '__main__':
-    main()
-
-    
+        with open(filename, 'rb') as f:
+            data = f.read()
+        b64 = base64.b64encode(data).decode()
+        href = f'<a href="data:application/octet-stream;base64,{b64}" download="{filename}">Download Excel File</a>'
+        st.markdown(href, unsafe_allow_html=True)
     
