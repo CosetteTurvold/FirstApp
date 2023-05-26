@@ -1,9 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+#set working directory when NOT working web-based 
+#saves output to local working directory
+#import os
+#target_directory = "/Users/cturvold/Documents/Python"
+#os.chdir(target_directory)
+#print(os.getcwd())
+
+#set target directory to web-based
+#saves output to GitHub Working Directory??
 import os
-target_directory = "/Users/cturvold/Documents/Python"
-os.chdir(target_directory)
+
+target_directory = "CosetteTurvold/FirstApp"
+base_directory = os.getcwd()
+os.chdir(os.path.join(base_directory, target_directory))
 print(os.getcwd())
 
 
