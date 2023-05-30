@@ -21,7 +21,7 @@ def generate_excel_file(instrument):
     # Add three cells under the column header "O% (diff)" if the instrument is "LECO CHN"
     if instrument == "LECO CHN":
         extra_cells = ["=100-SUM(C6:C6)"] * 3  # Create cells with the desired formula
-        row_data = [""] * (len(columns) - 1) + extra_cells
+        row_data = ["" for _ in columns[:-1]] + extra_cells
         df.loc[-1] = row_data
         df.index = df.index + 1  # Shifting the index to insert the new row at the top
         df = df.sort_index()  # Sorting the index to maintain the order
