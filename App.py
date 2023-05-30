@@ -16,13 +16,13 @@ def generate_excel_file(instrument):
 
     # Example: Create a DataFrame with the specified columns
     columns = instruments[instrument]
-    df = pd.DataFrame(columns=columns)
+    df = pd.DataFrame(columns=columns, rows=rows)
 
     # Add three cells under the column header "O% (diff)" if the instrument is "LECO CHN"
     if instrument == "LECO CHN":
         extra_cells = ["=100-SUM(C6:C6)"] * 3  # Create cells with the desired formula
         row_data = [""] * (len(columns) - 3) + extra_cells
-        df.loc[-5] = row_data
+        df.loc[-1] = row_data
         df.index = df.index + 1  # Shifting the index to insert the new row at the top
         df = df.sort_index()  # Sorting the index to maintain the order
 
