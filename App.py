@@ -10,13 +10,21 @@ instrument_columns = {
     # Add more instruments and their columns as needed here
 }
 
+# Define the instruments and their corresponding row contents
+instrument_rows = {
+    'Density Meter': ['', '', 'x'],
+    #'LECO CHN': ['Sample ID', 'Mass (g)', 'C%', 'O% (diff)'],
+    # Add more instruments and their columns as needed here
+}
+
 def generate_excel_file(instrument):
     # Logic to generate the Excel file with pre-formatted columns and equations
     # You can use libraries like Pandas or openpyxl to work with Excel files
 
     # Example: Create a DataFrame with the specified columns
     columns = instrument_columns[instrument]
-    df = pd.DataFrame(columns=columns)
+    rows = instrument_rows[instrument]
+    df = pd.DataFrame(columns=columns, rows=rows)
 
     # Add three cells under the column header "O% (diff)" if the instrument is "LECO CHN"
     if instrument == "LECO CHN":
