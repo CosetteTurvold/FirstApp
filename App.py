@@ -16,7 +16,7 @@ def generate_excel_file(instrument):
 
     # Example: Create a DataFrame with the specified columns
     columns = instrument_columns[instrument]
-    df = pd.DataFrame(columns=columns, rows=rows)
+    df = pd.DataFrame(columns=columns)
 
     # Add three cells under the column header "O% (diff)" if the instrument is "LECO CHN"
     if instrument == "LECO CHN":
