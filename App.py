@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#set working directory when NOT working web-based 
+#saves output to local working directory
 #import os
 #target_directory = "/app/firstapp"
 #base_directory = os.getcwd()
@@ -20,7 +25,7 @@ import base64
 
 # Define the instruments and their corresponding column names
 instruments = {
-    'Instrument 1': ['Column A', 'Column B', 'Column C'],
+    'Densimeter': ['Sample ID', 'Density (g/mL)', 'Temperature °C'],
     'Instrument 2': ['Column X', 'Column Y', 'Column Z'],
     # Add more instruments and their columns as needed
 }
