@@ -4,7 +4,7 @@ import base64
 
 
 # Define the instruments and their corresponding column names
-instruments = {
+instrument_columns = {
     'Density Meter': ['Sample ID', 'Density (g/mL)', 'Temperature °C'],
     'LECO CHN': ['Sample ID', 'Mass (g)', 'C%', 'O% (diff)'],
     # Add more instruments and their columns as needed here
@@ -15,7 +15,7 @@ def generate_excel_file(instrument):
     # You can use libraries like Pandas or openpyxl to work with Excel files
 
     # Example: Create a DataFrame with the specified columns
-    columns = instruments[instrument]
+    columns = instrument_columns[instrument]
     df = pd.DataFrame(columns=columns, rows=rows)
 
     # Add three cells under the column header "O% (diff)" if the instrument is "LECO CHN"
@@ -38,7 +38,7 @@ def main():
     st.title('Instrument Data App')
 
     # Display a dropdown to select the instrument
-    instrument = st.selectbox('Select an instrument', list(instruments.keys()))
+    instrument = st.selectbox('Select an instrument', list(instrument_columns.keys()))
 
     # Generate the Excel file when a button is clicked
     if st.button('Generate Excel'):
