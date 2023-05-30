@@ -21,6 +21,13 @@ def generate_excel_file(instrument):
 
     # Add three cells under the column header "O% (diff)" if the instrument is "LECO CHN"
     if instrument == "LECO CHN":
+        extra_rows = [
+            ['Sample 1', 10, 20, "=100-SUM(C6:C6)"],
+            ['Sample 2', 15, 25, "=100-SUM(C7:C7)"],
+            ['Sample 3', 8, 30, "=100-SUM(C8:C8)"]
+        ]
+        for row in extra_rows:
+            df.loc[len(df)] = row
         extra_cells = ["=100-SUM(C6:C6)"] * 1  # Create cells with the desired formula
         row_data = [""] * (len(columns) - 1) + extra_cells
         df.loc[-1] = row_data
