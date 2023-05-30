@@ -20,7 +20,9 @@ def generate_excel_file(instrument):
 
     # Add three cells under the column header "0% (diff)" if the instrument is "LECO CHN"
     if instrument == "LECO CHN":
-        df.loc[-1] = ["", "", "=100-SUM(C6:C6)"]
+        extra_cells = [""] * (len(columns) - 3)  # Create empty cells for the mismatched columns
+        row_data = ["", "", "=100-SUM(C6:C6)"] + extra_cells
+        df.loc[-1] = row_data
         df.index = df.index + 1  # Shifting the index to insert the new row at the top
         df = df.sort_index()  # Sorting the index to maintain the order
 
@@ -29,6 +31,7 @@ def generate_excel_file(instrument):
     df.to_excel(filename, index=False)
 
     return filename
+
 
 # Main app
 def main():
