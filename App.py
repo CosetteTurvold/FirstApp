@@ -38,8 +38,14 @@ def generate_excel_file(instrument):
     columns = instruments[instrument]
     df = pd.DataFrame(columns=columns)
 
+    # Add three cells under the column header "0% (diff)" if the instrument is "LECO CHN"
+    if instrument == "LECO CHN":
+        df.loc[-1] = ["", "", "=100-SUM(C6:C6)"]
+        df.index = df.index + 1  # Shifting the index to insert the new row at the top
+        df = df.sort_index()  # Sorting the index to maintain the order
+
     # Save the DataFrame to an Excel file
-    filename = f'{instrument}_data.xlsx'
+    filename = f'{instrument}_data_template.xlsx'
     df.to_excel(filename, index=False)
 
     return filename
