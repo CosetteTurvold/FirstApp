@@ -1,23 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-#set working directory when NOT working web-based 
-#saves output to local working directory
-#import os
-#target_directory = "/app/firstapp"
-#base_directory = os.getcwd()
-#os.chdir(os.path.join(base_directory, target_directory))
-#print(os.getcwd())
-
-#set target directory to web-based
-#saves output to GitHub Working Directory??
-#import os
-#target_directory = "CosetteTurvold/FirstApp"
-#base_directory = os.getcwd()
-#os.chdir(os.path.join(base_directory, target_directory))
-#print(os.getcwd())
-
-
 import streamlit as st
 import pandas as pd
 import base64
@@ -25,9 +5,9 @@ import base64
 
 # Define the instruments and their corresponding column names
 instruments = {
-    'Densimeter': ['Sample ID', 'Density (g/mL)', 'Temperature °C'],
-    'Instrument 2': ['Column X', 'Column Y', 'Column Z'],
-    # Add more instruments and their columns as needed
+    'Density Meter': ['Sample ID', 'Density (g/mL)', 'Temperature °C'],
+    'LECO CHN': ['Sample ID', 'Mass (g)', 'C%', 'O% (diff)'],
+    # Add more instruments and their columns as needed here
 }
 
 def generate_excel_file(instrument):
