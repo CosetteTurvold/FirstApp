@@ -10,10 +10,9 @@ instrument_columns = {
     # Add more instruments and their columns as needed here
 }
 
-# Define the instruments and their corresponding row contents
 instrument_rows = {
     'Density Meter': ['', '', 'x'],
-    #'LECO CHN': ['Sample ID', 'Mass (g)', 'C%', 'O% (diff)'],
+    'LECO CHN': ['', '', '', ''],
     # Add more instruments and their columns as needed here
 }
 
