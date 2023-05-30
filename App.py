@@ -43,7 +43,7 @@ def generate_excel_file(instrument):
 
 # Main app
 def main():
-    st.title('Instrument Data App')
+    st.title('Instrument Data Template Generator')
 
     # Display a dropdown to select the instrument
     instrument = st.selectbox('Select an instrument', list(instrument_columns.keys()))
