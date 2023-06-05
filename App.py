@@ -43,7 +43,7 @@ def generate_excel_file(instrument):
     bold_format = workbook.add_format({'bold': True})
     
     # Write the DataFrame to the default sheet
-    df.to_excel(writer, index=False, sheet_name='Analysis')
+    df.to_excel(writer, index=False, sheet_name='Analysis', engine= 'xlsxwriter')
     
     # Create a additional sheet and write additional data
     if instrument == "LECO CHN":
@@ -51,7 +51,7 @@ def generate_excel_file(instrument):
             'Data': ['Additional Data 1', 'Additional Data 2', 'Additional Data 3']
             }
         additional_df = pd.DataFrame(extra_sheet)
-        additional_df.to_excel(writer, index=False, sheet_name='Cresol Testing', startrow=1, startcol=0)
+        additional_df.to_excel(writer, index=False, sheet_name='Cresol Testing', engine= 'xlsxwriter', startrow=1, startcol=0)
 
    # Get the worksheet for the Cresol Testing sheet
         worksheet = writer.sheets['Cresol Testing']
