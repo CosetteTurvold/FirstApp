@@ -37,10 +37,9 @@ def generate_excel_file(instrument):
     # Create an Excel writer and specify the sheet name
     filename = f'{instrument}_data_template.xlsx'
     writer = pd.ExcelWriter(filename, engine='xlsxwriter')
-    workbook = writer.book
     
     # Define a format for bold cells
-    bold_format = workbook.add_format({'bold': True})
+    bold_format = writer.book.add_format({'bold': True})
     
     # Write the DataFrame to the default sheet
     df.to_excel(writer, index=False, sheet_name='Analysis', engine= 'xlsxwriter')
@@ -51,7 +50,7 @@ def generate_excel_file(instrument):
             'Data': ['Additional Data 1', 'Additional Data 2', 'Additional Data 3']
             }
         additional_df = pd.DataFrame(extra_sheet)
-        additional_df.to_excel(writer, index=False, sheet_name='Cresol Testing', engine= 'xlsxwriter', startrow=1, startcol=0)
+        additional_df.to_excel(writer, index=False, sheet_name='Cresol Testing', startrow=1, startcol=0)
 
    # Get the worksheet for the Cresol Testing sheet
         worksheet = writer.sheets['Cresol Testing']
@@ -84,7 +83,7 @@ def generate_excel_file(instrument):
                 worksheet.write(row_num + 1, col_num + 0, cell_data)
 
     # Close the writer and save the Excel file
-    writer.save()
+    writer.close()
 
     return filename
 
