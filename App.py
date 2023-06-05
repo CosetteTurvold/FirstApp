@@ -6,7 +6,7 @@ import base64
 # Define the instruments and their corresponding column names
 instrument_columns = {
     'Density Meter': ['Sample ID', 'Density (g/mL)', 'Temperature °C'],
-    'LECO CHN': ['Sample ID', 'Mass (g)', 'C%', 'O% (diff)'],
+    'LECO CHN': ['Sample ID', 'Mass (g)', 'C%', 'H%', 'N%','O% (diff)'],
     # Add more instruments and their columns as needed here
 }
 
@@ -20,30 +20,79 @@ def generate_excel_file(instrument):
     df = pd.DataFrame(columns=columns)
 
     # Add three cells under the column header "O% (diff)" if the instrument is "LECO CHN"
-    if instrument == "LECO CHN":
-        extra_rows = [
-            ['Sample 1', 10, 20, "=100-SUM(C6:C6)"],
-            ['Sample 2', 15, 25, "=100-SUM(C7:C7)"],
-            ['Sample 3', 8, 30, "=100-SUM(C8:C8)"]
-        ]
-        for row in extra_rows:
-            df.loc[len(df)] = row
-        extra_cells = ["=100-SUM(C6:C6)"] * 1  # Create cells with the desired formula
-        row_data = [""] * (len(columns) - 1) + extra_cells
-        df.loc[-1] = row_data
-        df.index = df.index + 1  # Shifting the index to insert the new row at the top
-        df = df.sort_index()  # Sorting the index to maintain the order
 
-    # Save the DataFrame to an Excel file
+    if instrument == "LECO CHN":
+        CHN_calc = [
+            ['Sample 1','','','','', "=100-SUM(C2:E2)"],
+            ['Sample 2','','','','', "=100-SUM(C3:E3)"],
+            ['Sample 3','','','','', "=100-SUM(C4:E4)"], 
+            ['', 'Average', '=AVERAGE(C2:C4)','=AVERAGE(D2:D4)','=AVERAGE(E2:E4)','=AVERAGE(F2:F4)'],
+            ['', 'StDev', '=STDEV(C2:C4)','=STDEV(D2:D4)','=STDEV(E2:E4)','=STDEV(F2:F4)'],
+            ['', 'RSD', '=C6/C5*100','=D6/D5*100','=E6/E5*100','=F6/F5*100'],
+        ]
+        for row in CHN_calc:
+            df.loc[len(df)] = row
+    
+
+    # Create an Excel writer and specify the sheet name
     filename = f'{instrument}_data_template.xlsx'
-    df.to_excel(filename, index=False)
+    writer = pd.ExcelWriter(filename, engine='xlsxwriter')
+    workbook = writer.book
+    
+    # Define a format for bold cells
+    bold_format = workbook.add_format({'bold': True})
+    
+    # Write the DataFrame to the default sheet
+    df.to_excel(writer, index=False, sheet_name='Analysis')
+    
+    # Create a additional sheet and write additional data
+    if instrument == "LECO CHN":
+        extra_sheet = {
+            'Data': ['Additional Data 1', 'Additional Data 2', 'Additional Data 3']
+            }
+        additional_df = pd.DataFrame(extra_sheet)
+        additional_df.to_excel(writer, index=False, sheet_name='Cresol Testing', startrow=1, startcol=0)
+
+   # Get the worksheet for the Cresol Testing sheet
+        worksheet = writer.sheets['Cresol Testing']
+        
+        # additional method apply bold formatting to the cell containing "Additional Data 1" (A1)
+        #worksheet.write('A1', 'Additional Data 1', bold_format)
+        #worksheet.write('A2', 'Additional Data 2', bold_format)
+
+    # Write new column and row headers in Cresol Testing sheet
+        headers = ['Cresol Limit Testing', 'Cresol Measured', 'Average', 'Low-value', 'High-value']
+        for i, header in enumerate(headers):
+            worksheet.write(0, i, header, bold_format)
+        
+        # Write new row headers in Cresol Testing sheet
+        row_headers = ['Carbon', 'Hydrogen', 'Nitrogen', 'Oxygen']
+        for i, header in enumerate(row_headers):
+            worksheet.write(i+1, 0, header, bold_format)
+            
+#WORKING HERE trying to input Cresol Limits into second worksheet in LECO worksheet
+#create and fill Cresol Typical Limits
+        cresol_limits = [
+            ['','', 77.540064516129, 76.8689132062322, 78.2112158260259], 
+            ['','', 7.68705, 7.41272698524775, 7.96137301475225],
+            ['','', 0.0579167768595041, 0.0151682547630326, 0.100665298955976],
+            ['','', 14.772885483871, 13.9828215158141, 15.5629494519279]
+             ]
+            
+        for row_num, row_data in enumerate(cresol_limits):
+            for col_num, cell_data in enumerate(row_data):
+                worksheet.write(row_num + 1, col_num + 0, cell_data)
+
+    # Close the writer and save the Excel file
+    writer.save()
 
     return filename
 
 
+
 # Main app
 def main():
-    st.title('Instrument Data Template Generator')
+    st.title('Instrument Template Generator')
 
     # Display a dropdown to select the instrument
     instrument = st.selectbox('Select an instrument', list(instrument_columns.keys()))
