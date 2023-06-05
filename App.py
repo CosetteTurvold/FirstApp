@@ -70,8 +70,8 @@ def generate_excel_file(instrument):
         for i, header in enumerate(row_headers):
             worksheet.write(i+1, 0, header, bold_format)
             
-#WORKING HERE trying to input Cresol Limits into second worksheet in LECO worksheet
-#create and fill Cresol Typical Limits
+
+  # Write Cresol Limits below the columns
         cresol_limits = [
             ['','', 77.540064516129, 76.8689132062322, 78.2112158260259], 
             ['','', 7.68705, 7.41272698524775, 7.96137301475225],
