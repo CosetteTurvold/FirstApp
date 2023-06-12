@@ -71,14 +71,15 @@ def generate_excel_file(instrument):
     # Write the DataFrame to the default sheet
     df.to_excel(writer, index=False, sheet_name='Analysis', engine= 'xlsxwriter')
     
-     # Set the border format for the cells
-    border_format = writer.book.add_format({'border': 1})
-    
-    # Get the default worksheet
+    # Get the workbook and default worksheet
+    workbook = writer.book
     worksheet = writer.sheets['Analysis']
     
-    # Set the border for columns A to E down from rows 1 to 7
-    worksheet.set_border(0, 0, 6, 4, border_format)
+    # Create a cell format for the borders
+    border_format = workbook.add_format({'border': 1})
+    
+    # Set the border for the range of cells
+    worksheet.conditional_format('B2:E4', {'type': 'no_blanks', 'format': border_format})
     
     # Create a additional sheet and write additional data
     if instrument == "LECO CHN":
