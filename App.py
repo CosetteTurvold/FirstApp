@@ -7,7 +7,7 @@ import base64
 instrument_columns = {
     'Density Meter': ['Sample ID', 'Density (g/mL)', 'Temperature °C'],
     'LECO CHN': ['Sample ID', 'Mass (g)', 'C%', 'H%', 'N%','O% (diff)'],
-    'Karl Fischer': ['Sample ID', 'Mass(g)', 'Titrant(mL)', 'H2O%'],
+    'Karl Fischer': ['Sample ID','~Vol(uL)', 'Mass(g)', 'Titrant(mL)', 'H2O%'],
     'KF & LECO CHN Combined': ['Sample ID', 'Mass (g)', 'C%', 'H%', 'N%','O% (diff)', 'Water', 'C% Dry Basis', 'H% Dry Basis', 'O% Dry Basis'],
     # Add more instruments and their columns as needed here
 }
@@ -37,12 +37,12 @@ def generate_excel_file(instrument):
             
     elif instrument == "Karl Fischer":
             kf_calc = [
-                ['Sample 1', '', '', ''],
-                ['Sample 1', '', '', ''],
-                ['Sample 1', '', '', ''],
-                ['', '', 'Mean%', '=AVERAGE(D2:D4)'],
-                ['', '', 'Sabs%', '=STDEV(D2:D4)'],
-                ['', '', 'Srel%', '=(D6/D5)*100'],
+                ['Sample 1','', '', '', ''],
+                ['Sample 1','', '', '', ''],
+                ['Sample 1','', '', '', ''],
+                ['', '', '','Mean%', '=AVERAGE(D2:D4)'],
+                ['', '', '', 'Sabs%', '=STDEV(D2:D4)'],
+                ['', '', '', 'Srel%', '=(D6/D5)*100'],
             ]
             for row in kf_calc:
                 df.loc[len(df)] = row
