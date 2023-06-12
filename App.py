@@ -71,20 +71,13 @@ def generate_excel_file(instrument):
     # Write the DataFrame to the default sheet
     df.to_excel(writer, index=False, sheet_name='Analysis', engine= 'xlsxwriter')
     
-    # Set the border format for the cells
+     # Set the border format for the cells
     border_format = writer.book.add_format({'border': 1})
     
     # Get the default worksheet
     worksheet = writer.sheets['Analysis']
     
-    # Set the border format for the cells
-    border_format = writer.book.add_format({'border': 1})
-
-    # Get the index of the last row and column
-    last_row = len(df) + 1  # Add 1 to account for the header row
-    last_col = len(columns)
-
-    # Set the border for columns A to E and rows 1 to 7
+    # Set the border for columns A to E down from rows 1 to 7
     worksheet.set_border(0, 0, 6, 4, border_format)
     
     # Create a additional sheet and write additional data
