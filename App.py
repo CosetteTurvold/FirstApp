@@ -42,7 +42,7 @@ def generate_excel_file(instrument):
                 ['Sample 1','', '', '', ''],
                 ['', '', '','Mean%', '=AVERAGE(E2:E4)'],
                 ['', '', '', 'Sabs%', '=STDEV(E2:E4)'],
-                ['', '', '', 'Srel%', '=(D6/D5)*100'],
+                ['', '', '', 'Srel%', '=(E6/E5)*100'],
             ]
             for row in kf_calc:
                 df.loc[len(df)] = row
