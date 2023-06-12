@@ -78,8 +78,15 @@ def generate_excel_file(instrument):
     # Create a cell format for the borders
     border_format = workbook.add_format({'border': 1})
     
-    # Set the border for the range of cells
-    worksheet.conditional_format('B2:E4', {'type': 'no_blanks', 'format': border_format})
+    # Set the border for columns A to E (Length)
+    for row_num in range(1, 8):
+        for col_num in range(1, 6):
+            worksheet.write(row_num, col_num, '', border_format)
+    
+    # Set the border for rows 1 to 7 (Width)
+    for row_num in range(1, 8):
+        for col_num in range(1, 6):
+            worksheet.write(row_num, col_num, '', border_format)
     
     # Create a additional sheet and write additional data
     if instrument == "LECO CHN":
