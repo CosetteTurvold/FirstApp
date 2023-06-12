@@ -40,8 +40,8 @@ def generate_excel_file(instrument):
                 ['Sample 1','', '', '', ''],
                 ['Sample 1','', '', '', ''],
                 ['Sample 1','', '', '', ''],
-                ['', '', '','Mean%', '=AVERAGE(C2:C4)'],
-                ['', '', '', 'Sabs%', '=STDEV(C2:C4)'],
+                ['', '', '','Mean%', '=AVERAGE(E2:E4)'],
+                ['', '', '', 'Sabs%', '=STDEV(E2:E4)'],
                 ['', '', '', 'Srel%', '=(D6/D5)*100'],
             ]
             for row in kf_calc:
