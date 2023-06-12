@@ -7,6 +7,8 @@ import base64
 instrument_columns = {
     'Density Meter': ['Sample ID', 'Density (g/mL)', 'Temperature °C'],
     'LECO CHN': ['Sample ID', 'Mass (g)', 'C%', 'H%', 'N%','O% (diff)'],
+    'Karl Fischer': ['Sample ID', 'Mass(g)', 'Titrant(mL)', 'H2O%'],
+    'KF & LECO CHN Combined': ['Sample ID', 'Mass (g)', 'C%', 'H%', 'N%','O% (diff)', 'Water', 'C% Dry Basis', 'H% Dry Basis', 'O% Dry Basis'],
     # Add more instruments and their columns as needed here
 }
 
@@ -24,13 +26,37 @@ def generate_excel_file(instrument):
     if instrument == "LECO CHN":
         CHN_calc = [
             ['Sample 1','','','','', "=100-SUM(C2:E2)"],
-            ['Sample 2','','','','', "=100-SUM(C3:E3)"],
-            ['Sample 3','','','','', "=100-SUM(C4:E4)"], 
+            ['Sample 1','','','','', "=100-SUM(C3:E3)"],
+            ['Sample 1','','','','', "=100-SUM(C4:E4)"], 
             ['', 'Average', '=AVERAGE(C2:C4)','=AVERAGE(D2:D4)','=AVERAGE(E2:E4)','=AVERAGE(F2:F4)'],
             ['', 'StDev', '=STDEV(C2:C4)','=STDEV(D2:D4)','=STDEV(E2:E4)','=STDEV(F2:F4)'],
             ['', 'RSD', '=C6/C5*100','=D6/D5*100','=E6/E5*100','=F6/F5*100'],
         ]
         for row in CHN_calc:
+            df.loc[len(df)] = row
+            
+    elif instrument == "Karl Fischer":
+            kf_calc = [
+                ['Sample 1', '', '', ''],
+                ['Sample 1', '', '', ''],
+                ['Sample 1', '', '', ''],
+                ['', '', 'Mean%', '=AVERAGE(D2:D4)'],
+                ['', '', 'Sabs%', '=STDEV(D2:D4)'],
+                ['', '', 'Srel%', '=(D6/D5)*100'],
+            ]
+            for row in kf_calc:
+                df.loc[len(df)] = row
+                
+    elif instrument == "KF & LECO CHN Combined":
+        CHN_KF_calc = [
+            ['Sample 1','','','','', "=100-SUM(C2:E2)",'','','',''],
+            ['Sample 1','','','','', "=100-SUM(C3:E3)",'','','',''],
+            ['Sample 1','','','','', "=100-SUM(C4:E4)",'','','',''], 
+            ['', 'Average', '=AVERAGE(C2:C4)','=AVERAGE(D2:D4)','=AVERAGE(E2:E4)','=AVERAGE(F2:F4)', '=AVERAGE(G2:G4)', '=C5/(100-G5)*100','=(D5-(G5*0.111))/(100-G5)*100','=(F5-(0.889*G5))/(100-G5)*100'],
+            ['', 'StDev', '=STDEV(C2:C4)','=STDEV(D2:D4)','=STDEV(E2:E4)','=STDEV(F2:F4)','=STDEV(G2:G4)','','',''],
+            ['', 'RSD', '=C6/C5*100','=D6/D5*100','=E6/E5*100','=F6/F5*100','=G6/G5*100','','',''],
+        ]
+        for row in CHN_KF_calc:
             df.loc[len(df)] = row
     
 
@@ -81,6 +107,32 @@ def generate_excel_file(instrument):
         for row_num, row_data in enumerate(cresol_limits):
             for col_num, cell_data in enumerate(row_data):
                 worksheet.write(row_num + 1, col_num + 0, cell_data)
+                
+    elif instrument == "Karl Fischer":
+        extra_sheet = {
+           'Water Standard Check': ['Water Standard (1)', 'Water Standard (2)', 'Water Standard (3)']
+            }
+        additional_df = pd.DataFrame(extra_sheet)
+        additional_df.to_excel(writer, index=False, sheet_name='Water Standard', startrow=0, startcol=0)
+        worksheet = writer.sheets['Water Standard']
+        headers = ['Water Standard Check', 'Mass(g)', 'Titrant(mL)', 'H2O%']
+        for i, header in enumerate(headers):
+            worksheet.write(0, i, header, bold_format)
+        
+        # Write new row headers in Cresol Testing sheet
+        row_headers = ['Water Standard (1)', 'Water Standard (2)', 'Water Standard (3)']
+        for i, header in enumerate(row_headers):
+            worksheet.write(i+1, 0, header, bold_format)
+        
+        KF_water_check = [
+           ['', '', 'Mean%', '=AVERAGE(D2:D4)'],
+           ['', '', 'Sabs%', '=STDEV(D2:D4)'],
+           ['', '', 'Srel%', '=(D6/D5)*100'],
+           ]
+        for row_num, row_data in enumerate(KF_water_check):
+            for col_num, cell_data in enumerate(row_data):
+                worksheet.write(row_num + 4, col_num + 0, cell_data)
+        
 
     # Close the writer and save the Excel file
     writer.close()
