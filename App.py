@@ -78,7 +78,7 @@ def generate_excel_file(instrument):
     worksheet = writer.sheets['Analysis']
     
     # Set the border for columns A to E down from rows 1 to 7
-    worksheet.set_column('A:E', None, border_format)
+    worksheet.set_column('A:E', 7, border_format)
    # worksheet.set_row(0, None, border_format)
    # worksheet.set_row(1, None, border_format)
    # worksheet.set_row(2, None, border_format)
