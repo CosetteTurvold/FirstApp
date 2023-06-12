@@ -68,25 +68,11 @@ def generate_excel_file(instrument):
     # Define a format for bold cells
     bold_format = writer.book.add_format({'bold': True})
     
-    # Write the DataFrame to the default sheet
-    df.to_excel(writer, index=False, sheet_name='Analysis', engine= 'xlsxwriter')
-    
-    # Get the workbook and default worksheet
-    workbook = writer.book
-    worksheet = writer.sheets['Analysis']
-    
-    # Create a cell format for the borders
+     # Create a cell format for the borders
     border_format = workbook.add_format({'border': 1})
     
-    # Set the border for columns A to E (Length)
-    for row_num in range(1, 8):
-        for col_num in range(1, 6):
-            worksheet.write(row_num, col_num, '', border_format)
-    
-    # Set the border for rows 1 to 7 (Width)
-    for row_num in range(1, 8):
-        for col_num in range(1, 6):
-            worksheet.write(row_num, col_num, '', border_format)
+    # Write the DataFrame to the default sheet
+    df.to_excel(writer, index=False, sheet_name='Analysis', engine= 'xlsxwriter')
     
     # Create a additional sheet and write additional data
     if instrument == "LECO CHN":
@@ -127,31 +113,40 @@ def generate_excel_file(instrument):
                 worksheet.write(row_num + 1, col_num + 0, cell_data)
                 
     elif instrument == "Karl Fischer":
-        extra_sheet = {
-           'Water Standard Check': ['Water Standard (1)', 'Water Standard (2)', 'Water Standard (3)']
-            }
-        additional_df = pd.DataFrame(extra_sheet)
-        additional_df.to_excel(writer, index=False, sheet_name='Water Standard', startrow=0, startcol=0)
-        worksheet = writer.sheets['Water Standard']
-        headers = ['Water Standard Check', 'Mass(g)', 'Titrant(mL)', 'H2O%']
-        for i, header in enumerate(headers):
-            worksheet.write(0, i, header, bold_format)
-        
-        # Write new row headers in Cresol Testing sheet
-        row_headers = ['Water Standard (1)', 'Water Standard (2)', 'Water Standard (3)']
-        for i, header in enumerate(row_headers):
-            worksheet.write(i+1, 0, header, bold_format)
-        
-        KF_water_check = [
-           ['', '', 'Mean%', '=AVERAGE(D2:D4)'],
-           ['', '', 'Sabs%', '=STDEV(D2:D4)'],
-           ['', '', 'Srel%', '=(D6/D5)*100'],
-           ]
-        for row_num, row_data in enumerate(KF_water_check):
-            for col_num, cell_data in enumerate(row_data):
-                worksheet.write(row_num + 4, col_num + 0, cell_data)
-        
+    extra_sheet = {
+       'Water Standard Check': ['Water Standard (1)', 'Water Standard (2)', 'Water Standard (3)']
+    }
+    additional_df = pd.DataFrame(extra_sheet)
+    additional_df.to_excel(writer, index=False, sheet_name='Water Standard', startrow=0, startcol=0)
+    worksheet = writer.sheets['Water Standard']
+    headers = ['Water Standard Check', 'Mass(g)', 'Titrant(mL)', 'H2O%']
+    for i, header in enumerate(headers):
+        worksheet.write(0, i, header, bold_format)
 
+    # Write new row headers in Cresol Testing sheet
+    row_headers = ['Water Standard (1)', 'Water Standard (2)', 'Water Standard (3)']
+    for i, header in enumerate(row_headers):
+        worksheet.write(i+1, 0, header, bold_format)
+
+    KF_water_check = [
+       ['', '', 'Mean%', '=AVERAGE(D2:D4)'],
+       ['', '', 'Sabs%', '=STDEV(D2:D4)'],
+       ['', '', 'Srel%', '=(D6/D5)*100'],
+    ]
+    for row_num, row_data in enumerate(KF_water_check):
+        for col_num, cell_data in enumerate(row_data):
+            worksheet.write(row_num + 4, col_num + 0, cell_data)
+
+    # Set the border for columns A to E (Length)
+    for row_num in range(1, 8):
+        for col_num in range(1, 6):
+            worksheet.write(row_num, col_num, '', border_format)
+
+    # Set the border for rows 1 to 7 (Width)
+    for row_num in range(1, 8):
+        for col_num in range(1, 6):
+            if col_num == 1 or col_num == 5 or row_num == 1 or row_num == 7:
+                worksheet.write(row_num, col_num, '', border_format)
     # Close the writer and save the Excel file
     writer.close()
 
