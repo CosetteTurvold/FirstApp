@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import base64
+import xlsxwriter
 
 
 # Define the instruments and their corresponding column names
@@ -69,6 +70,22 @@ def generate_excel_file(instrument):
     
     # Write the DataFrame to the default sheet
     df.to_excel(writer, index=False, sheet_name='Analysis', engine= 'xlsxwriter')
+    
+    # Set the border format for the cells
+    border_format = writer.book.add_format({'border': 1})
+    
+    # Get the default worksheet
+    worksheet = writer.sheets['Analysis']
+    
+    # Set the border for columns A to E down from rows 1 to 7
+    worksheet.set_column('A:E', None, border_format)
+    worksheet.set_row(0, None, border_format)
+    worksheet.set_row(1, None, border_format)
+    worksheet.set_row(2, None, border_format)
+    worksheet.set_row(3, None, border_format)
+    worksheet.set_row(4, None, border_format)
+    worksheet.set_row(5, None, border_format)
+    worksheet.set_row(6, None, border_format)
     
     # Create a additional sheet and write additional data
     if instrument == "LECO CHN":
