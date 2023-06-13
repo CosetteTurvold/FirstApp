@@ -21,6 +21,28 @@ def generate_excel_file(instrument):
     # Example: Create a DataFrame with the specified columns
     columns = instrument_columns[instrument]
     df = pd.DataFrame(columns=columns)
+    
+    filename = f'{instrument}_data_template.xlsx'
+    writer = pd.ExcelWriter(filename, engine='xlsxwriter')
+    
+    # Write the DataFrame to the default sheet
+    df.to_excel(writer, index=False, sheet_name=('Analysis'), engine='xlsxwriter')
+    worksheet = writer.sheets['Analysis']
+     
+    # Get the workbook from the writer
+    workbook = writer.book
+    
+    # Define a format for bold cells
+    bold_format = writer.book.add_format({'bold': True})
+    
+    border_format = workbook.add_format({'border': 1})
+
+    # Apply borders to columns A to E
+    worksheet.conditional_format('A1:E1048576', {'type': 'no_blanks', 'format': border_format})
+
+    # Apply bottom borders to rows 1 to 7
+    worksheet.conditional_format('A1:E7', {'type': 'blanks', 'format': border_format})
+    
 
     # Add three cells under the column header "O% (diff)" if the instrument is "LECO CHN"
 
@@ -36,17 +58,87 @@ def generate_excel_file(instrument):
         for row in CHN_calc:
             df.loc[len(df)] = row
             
+        # Create an additional sheet and write additional data
+        extra_sheetCHN = {
+            'Data': ['Additional Data 1', 'Additional Data 2', 'Additional Data 3']
+        }
+        additional_df = pd.DataFrame(extra_sheetCHN)
+        additional_df.to_excel(writer, index=False, sheet_name='Cresol Testing', startrow=1, startcol=0)
+        # Get the worksheet for the Cresol Testing sheet
+        worksheet = writer.sheets['Cresol Testing']
+             
+        #additional method apply bold formatting to the cell containing "Additional Data 1" (A1)
+        #worksheet.write('A1', 'Additional Data 1', bold_format)
+        #worksheet.write('A2', 'Additional Data 2', bold_format)
+
+         # Write new column and row headers in Cresol Testing sheet
+        headers = ['Cresol Limit Testing', 'Cresol Measured', 'Average', 'Low-value', 'High-value']
+        for i, header in enumerate(headers):
+             worksheet.write(0, i, header, bold_format)
+             
+             # Write new row headers in Cresol Testing sheet
+        row_headers = ['Carbon', 'Hydrogen', 'Nitrogen', 'Oxygen']
+        for i, header in enumerate(row_headers):
+             worksheet.write(i+1, 0, header, bold_format)
+                 
+
+       # Write Cresol Limits below the columns
+             cresol_limits = [
+                 ['','', 77.540064516129, 76.8689132062322, 78.2112158260259], 
+                 ['','', 7.68705, 7.41272698524775, 7.96137301475225],
+                 ['','', 0.0579167768595041, 0.0151682547630326, 0.100665298955976],
+                 ['','', 14.772885483871, 13.9828215158141, 15.5629494519279]
+                  ]
+                 
+             for row_num, row_data in enumerate(cresol_limits):
+                 for col_num, cell_data in enumerate(row_data):
+                     worksheet.write(row_num + 1, col_num + 0, cell_data)
+
+        # Get the worksheet for the Cresol Testing sheet
+        worksheet = writer.sheets['Cresol Testing']
+            
     elif instrument == "Karl Fischer":
-            kf_calc = [
-                ['Sample 1','', '', '', ''],
-                ['Sample 1','', '', '', ''],
-                ['Sample 1','', '', '', ''],
-                ['', '', '','Mean%', '=AVERAGE(E2:E4)'],
-                ['', '', '', 'Sabs%', '=STDEV(E2:E4)'],
-                ['', '', '', 'Srel%', '=(E6/E5)*100'],
-            ]
-            for row in kf_calc:
-                df.loc[len(df)] = row
+        kf_calc = [
+            ['Sample 1','', '', '', ''],
+            ['Sample 1','', '', '', ''],
+            ['Sample 1','', '', '', ''],
+            ['', '', '','Mean%', '=AVERAGE(E2:E4)'],
+            ['', '', '', 'Sabs%', '=STDEV(E2:E4)'],
+            ['', '', '', 'Srel%', '=(E6/E5)*100'],
+        ]
+        for row in kf_calc:
+            df.loc[len(df)] = row
+            extra_sheetK = {
+           'Water Standard Check': ['Water Standard (1)', 'Water Standard (2)', 'Water Standard (3)']
+           }
+        additional_df = pd.DataFrame(extra_sheetK)
+        additional_df.to_excel(writer, index=False, sheet_name='Water Standard', startrow=0, startcol=0)
+        worksheet = writer.sheets['Water Standard']
+        headers = ['Water Standard Check', 'Mass(g)', 'Titrant(mL)', 'H2O%']
+        for i, header in enumerate(headers):
+            worksheet.write(0, i, header, bold_format)
+
+        # Write new row headers in Cresol Testing sheet
+        row_headers = ['Water Standard (1)', 'Water Standard (2)', 'Water Standard (3)']
+        for i, header in enumerate(row_headers):
+            worksheet.write(i+1, 0, header, bold_format)
+
+        KF_water_check = [
+           ['', '', 'Mean%', '=AVERAGE(D2:D4)'],
+           ['', '', 'Sabs%', '=STDEV(D2:D4)'],
+           ['', '', 'Srel%', '=(D6/D5)*100'],
+        ]
+        for row_num, row_data in enumerate(KF_water_check):
+            for col_num, cell_data in enumerate(row_data):
+                worksheet.write(row_num + 4, col_num + 0, cell_data)
+        #border_format = workbook.add_format({'border': 1})
+
+        # Apply borders to columns A to E
+        #worksheet.conditional_format('A1:E1048576', {'type': 'no_blanks', 'format': border_format})
+
+        # Apply bottom borders to rows 1 to 7
+        #worksheet.conditional_format('A1:E7', {'type': 'blanks', 'format': border_format})
+           
                 
     elif instrument == "KF & LECO CHN Combined":
         CHN_KF_calc = [
@@ -61,92 +153,11 @@ def generate_excel_file(instrument):
             df.loc[len(df)] = row
     
 
-    # Create an Excel writer and specify the sheet name
-    filename = f'{instrument}_data_template.xlsx'
-    writer = pd.ExcelWriter(filename, engine='xlsxwriter')
-    
-    # Define a format for bold cells
-    bold_format = writer.book.add_format({'bold': True})
-    
-     # Create a cell format for the borders
-    border_format = workbook.add_format({'border': 1})
-    
     # Write the DataFrame to the default sheet
-    df.to_excel(writer, index=False, sheet_name='Analysis', engine= 'xlsxwriter')
+    df.to_excel(writer, index=False, sheet_name='Analysis', engine='xlsxwriter')
+    worksheet = writer.sheets['Analysis']
     
-    # Create a additional sheet and write additional data
-    if instrument == "LECO CHN":
-        extra_sheet = {
-            'Data': ['Additional Data 1', 'Additional Data 2', 'Additional Data 3']
-            }
-        additional_df = pd.DataFrame(extra_sheet)
-        additional_df.to_excel(writer, index=False, sheet_name='Cresol Testing', startrow=1, startcol=0)
-
-   # Get the worksheet for the Cresol Testing sheet
-        worksheet = writer.sheets['Cresol Testing']
-        
-        # additional method apply bold formatting to the cell containing "Additional Data 1" (A1)
-        #worksheet.write('A1', 'Additional Data 1', bold_format)
-        #worksheet.write('A2', 'Additional Data 2', bold_format)
-
-    # Write new column and row headers in Cresol Testing sheet
-        headers = ['Cresol Limit Testing', 'Cresol Measured', 'Average', 'Low-value', 'High-value']
-        for i, header in enumerate(headers):
-            worksheet.write(0, i, header, bold_format)
-        
-        # Write new row headers in Cresol Testing sheet
-        row_headers = ['Carbon', 'Hydrogen', 'Nitrogen', 'Oxygen']
-        for i, header in enumerate(row_headers):
-            worksheet.write(i+1, 0, header, bold_format)
-            
-
-  # Write Cresol Limits below the columns
-        cresol_limits = [
-            ['','', 77.540064516129, 76.8689132062322, 78.2112158260259], 
-            ['','', 7.68705, 7.41272698524775, 7.96137301475225],
-            ['','', 0.0579167768595041, 0.0151682547630326, 0.100665298955976],
-            ['','', 14.772885483871, 13.9828215158141, 15.5629494519279]
-             ]
-            
-        for row_num, row_data in enumerate(cresol_limits):
-            for col_num, cell_data in enumerate(row_data):
-                worksheet.write(row_num + 1, col_num + 0, cell_data)
                 
-    elif instrument == "Karl Fischer":
-    extra_sheet = {
-       'Water Standard Check': ['Water Standard (1)', 'Water Standard (2)', 'Water Standard (3)']
-    }
-    additional_df = pd.DataFrame(extra_sheet)
-    additional_df.to_excel(writer, index=False, sheet_name='Water Standard', startrow=0, startcol=0)
-    worksheet = writer.sheets['Water Standard']
-    headers = ['Water Standard Check', 'Mass(g)', 'Titrant(mL)', 'H2O%']
-    for i, header in enumerate(headers):
-        worksheet.write(0, i, header, bold_format)
-
-    # Write new row headers in Cresol Testing sheet
-    row_headers = ['Water Standard (1)', 'Water Standard (2)', 'Water Standard (3)']
-    for i, header in enumerate(row_headers):
-        worksheet.write(i+1, 0, header, bold_format)
-
-    KF_water_check = [
-       ['', '', 'Mean%', '=AVERAGE(D2:D4)'],
-       ['', '', 'Sabs%', '=STDEV(D2:D4)'],
-       ['', '', 'Srel%', '=(D6/D5)*100'],
-    ]
-    for row_num, row_data in enumerate(KF_water_check):
-        for col_num, cell_data in enumerate(row_data):
-            worksheet.write(row_num + 4, col_num + 0, cell_data)
-
-    # Set the border for columns A to E (Length)
-    for row_num in range(1, 8):
-        for col_num in range(1, 6):
-            worksheet.write(row_num, col_num, '', border_format)
-
-    # Set the border for rows 1 to 7 (Width)
-    for row_num in range(1, 8):
-        for col_num in range(1, 6):
-            if col_num == 1 or col_num == 5 or row_num == 1 or row_num == 7:
-                worksheet.write(row_num, col_num, '', border_format)
     # Close the writer and save the Excel file
     writer.close()
 
@@ -175,3 +186,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
+    
