@@ -80,12 +80,13 @@ def generate_excel_file(instrument):
         worksheet.conditional_format('F5:F6', {'type': 'no_blanks', 'format': rightborder_format})
         worksheet.conditional_format('F5:F6', {'type': 'blanks', 'format': rightborder_format})
         
-        # Apply right and dashed bottom border to F4 given it is not blank
+        # Apply right and dashed bottom border to F4 given it is blank OR not blank
         worksheet.conditional_format('F4', {'type': 'no_blanks', 'format': sideborder_format})
+        worksheet.conditional_format('F4', {'type': 'blanks', 'format': sideborder_format})
         
-        # Apply corner border to F7 given it is not blank
+        # Apply corner border to F7 given it is blank OR not blank
         worksheet.conditional_format('F7', {'type': 'no_blanks', 'format': cornerborder_format})
-        
+        worksheet.conditional_format('F7', {'type': 'blanks', 'format': cornerborder_format})
         
         # Create an additional sheet and write additional data
         extra_sheetCHN = {
@@ -110,39 +111,36 @@ def generate_excel_file(instrument):
         #set conditional formatting for Cresol values in range green/red for in/out of range
         worksheet.conditional_format('B2', {'type':     'cell',
                                        'criteria': 'between',
-                                       'minimum':  76.86891321,
-                                       'maximum':  78.2112158260259,
+                                       'minimum':  77.0,
+                                       'maximum':  78.3,
                                        'format':   green_format})
         worksheet.conditional_format('B2', {'type':     'cell',
                                        'criteria': 'not between',
-                                       'minimum':  76.86891321,
-                                       'maximum':  78.2112158260259,
+                                       'minimum':  77.0,
+                                       'maximum':  78.3,
                                        'format':   red_format})
         
         worksheet.conditional_format('B3', {'type':     'cell',
                                        'criteria': 'between',
-                                       'minimum':  7.41272698524775,
-                                       'maximum':  7.96137301475225,
+                                       'minimum':  7.4,
+                                       'maximum':  7.9,
                                        'format':   green_format})
         worksheet.conditional_format('B3', {'type':     'cell',
                                        'criteria': 'not between',
-                                       'minimum':  7.41272698524775,
-                                       'maximum':  7.96137301475225,
+                                       'minimum':  7.4,
+                                       'maximum':  7.9,
                                        'format':   red_format})
-        worksheet.conditional_format('B4', {'type':     'cell',
-                                       'criteria': 'between',
-                                       'minimum':  0.0151682547630326,
-                                       'maximum':  0.100665298955976,
-                                       'format':   green_format})
+        
         worksheet.conditional_format('B5', {'type':     'cell',
                                        'criteria': 'between',
-                                       'minimum':  13.9828215158141,
-                                       'maximum':  15.5629494519279,
+                                       'minimum':  14.0,
+                                       'maximum':  15.4,
                                        'format':   green_format})
+        
         worksheet.conditional_format('B5', {'type':     'cell',
                                        'criteria': 'not between',
-                                       'minimum':  13.9828215158141,
-                                       'maximum':  15.5629494519279,
+                                       'minimum':  14.0,
+                                       'maximum':  15.4,
                                        'format':   red_format})
 
          # Write new column headers in Cresol Testing sheet
@@ -158,10 +156,10 @@ def generate_excel_file(instrument):
 
        # Write Cresol Limits below the columns
              cresol_limits = [
-                 ['','=C11', 77.540064516129, 76.8689132062322, 78.2112158260259], 
-                 ['','=D11', 7.68705, 7.41272698524775, 7.96137301475225],
-                 ['','=E11', 0.0579167768595041, 0.0151682547630326, 0.100665298955976],
-                 ['','=F11', 14.772885483871, 13.9828215158141, 15.5629494519279]
+                 ['','=C11', 77.7, 77.0, 78.3], 
+                 ['','=D11', 7.5, 7.4, 7.9],
+                 ['','=E11', 0.03, 0.0, 0.1],
+                 ['','=F11', 14.8, 14.0, 15.4]
                   ]
              for row_num, row_data in enumerate(cresol_limits):
                  for col_num, cell_data in enumerate(row_data):
@@ -243,11 +241,13 @@ def generate_excel_file(instrument):
             worksheet.conditional_format('E5:E6', {'type': 'no_blanks', 'format': rightborder_format})
             worksheet.conditional_format('E5:E6', {'type': 'blanks', 'format': rightborder_format})
             
-            # Apply right and dashed bottom border to E4 given it is blank
+            # Apply right and dashed bottom border to E4 given it is blank OR not blank
             worksheet.conditional_format('E4', {'type': 'blanks', 'format': sideborder_format})
+            worksheet.conditional_format('E4', {'type': 'no_blanks', 'format': sideborder_format})
             
-            # Apply corner border to E7 given it is not blank
+            # Apply corner border to E7 given it is blank OR not blank
             worksheet.conditional_format('E7', {'type': 'no_blanks', 'format': cornerborder_format})
+            worksheet.conditional_format('E7', {'type': 'blanks', 'format': cornerborder_format})
             
             extra_sheetKF = {
            'Water Standard Check': ['Water Standard (1)', 'Water Standard (2)', 'Water Standard (3)']
@@ -329,12 +329,13 @@ def generate_excel_file(instrument):
             worksheet.conditional_format('J5:J6', {'type': 'no_blanks', 'format': rightborder_format})
             worksheet.conditional_format('J5:J6', {'type': 'blanks', 'format': rightborder_format})
             
-            # Apply right and dashed bottom border to J4 given it is blank
+            # Apply right and dashed bottom border to J4 given it is blank OR not blank
             worksheet.conditional_format('J4', {'type': 'blanks', 'format': sideborder_format})
+            worksheet.conditional_format('J4', {'type': 'no_blanks', 'format': sideborder_format})
             
-            # Apply corner border to J7 given it is blank
+            # Apply corner border to J7 given it is blank OR not blank
             worksheet.conditional_format('J7', {'type': 'blanks', 'format': cornerborder_format})
-        
+            worksheet.conditional_format('J7', {'type': 'no_blanks', 'format': cornerborder_format})
             
             # Create an additional sheet and write additional data
             extra_sheetCHNKF = {
@@ -353,39 +354,34 @@ def generate_excel_file(instrument):
         #set conditional formatting for Cresol values in range green/red for in/out of range
         worksheet.conditional_format('B2', {'type':     'cell',
                                        'criteria': 'between',
-                                       'minimum':  76.86891321,
-                                       'maximum':  78.2112158260259,
+                                       'minimum':  77.0,
+                                       'maximum':  78.3,
                                        'format':   green_format})
         worksheet.conditional_format('B2', {'type':     'cell',
                                        'criteria': 'not between',
-                                       'minimum':  76.86891321,
-                                       'maximum':  78.2112158260259,
+                                       'minimum':  77.0,
+                                       'maximum':  78.3,
                                        'format':   red_format})
         
         worksheet.conditional_format('B3', {'type':     'cell',
                                        'criteria': 'between',
-                                       'minimum':  7.41272698524775,
-                                       'maximum':  7.96137301475225,
+                                       'minimum':  7.4,
+                                       'maximum':  7.9,
                                        'format':   green_format})
         worksheet.conditional_format('B3', {'type':     'cell',
                                        'criteria': 'not between',
-                                       'minimum':  7.41272698524775,
-                                       'maximum':  7.96137301475225,
+                                       'minimum':  7.4,
+                                       'maximum':  7.9,
                                        'format':   red_format})
-        worksheet.conditional_format('B4', {'type':     'cell',
-                                       'criteria': 'between',
-                                       'minimum':  0.0151682547630326,
-                                       'maximum':  0.100665298955976,
-                                       'format':   green_format})
         worksheet.conditional_format('B5', {'type':     'cell',
                                        'criteria': 'between',
-                                       'minimum':  13.9828215158141,
-                                       'maximum':  15.5629494519279,
+                                       'minimum':  14.0,
+                                       'maximum':  15.4,
                                        'format':   green_format})
         worksheet.conditional_format('B5', {'type':     'cell',
                                        'criteria': 'not between',
-                                       'minimum':  13.9828215158141,
-                                       'maximum':  15.5629494519279,
+                                       'minimum':  14.0,
+                                       'maximum':  15.4,
                                        'format':   red_format})
                  
        
@@ -401,10 +397,10 @@ def generate_excel_file(instrument):
                      
            # Write Cresol Limits below the columns
         cresol_limits = [
-            ['','=C11', 77.540064516129, 76.8689132062322, 78.2112158260259], 
-            ['','=D11', 7.68705, 7.41272698524775, 7.96137301475225],
-            ['','=E11', 0.0579167768595041, 0.0151682547630326, 0.100665298955976],
-            ['','=F11', 14.772885483871, 13.9828215158141, 15.5629494519279]
+            ['','=C11', 77.7, 77.0, 78.3], 
+            ['','=D11', 7.5, 7.4, 7.9],
+            ['','=E11', 0.03, 0.0, 0.1],
+            ['','=F11', 14.8, 14.0, 15.4]
              ]
                      
         for row_num, row_data in enumerate(cresol_limits):
@@ -463,10 +459,68 @@ def generate_excel_file(instrument):
         worksheet.set_column(0, 4, Vcolumnwidth)
     
     elif instrument == "Density Meter":
+        density_calc = [
+            ['Sample 1','', ''],
+            ['Sample 1','', ''],
+            ['Mean%', '=AVERAGE(B2:B3)', ''],
+            ['StDev%', '=STDEV(B2:B3)', ''],
+            ['RSD%', '=(B5/B4)*100', ''],
+        ]
+        for row in density_calc:
+            df.loc[len(df)] = row
+            
+            # Apply all borders to top row given they are blank OR not blank
+            worksheet.conditional_format('A1:C1', {'type': 'no_blanks', 'format': headerborder_format})
+            worksheet.conditional_format('A1:C1', {'type': 'blanks', 'format': headerborder_format})
+            
+            # Apply bottom borders to A6:C6 given they are blank OR not blank
+            worksheet.conditional_format('A6:B6', {'type': 'no_blanks', 'format': bottomborder_format})
+            worksheet.conditional_format('A6:B6', {'type': 'blanks', 'format': bottomborder_format})
+            
+            # Apply dashed bottom borders to A3:B3 given they are blank OR not blank
+            worksheet.conditional_format('A3:B3', {'type': 'no_blanks', 'format': dashedborder_format})
+            worksheet.conditional_format('A3:B3', {'type': 'blanks', 'format': dashedborder_format})
+            
+            # Apply right borders to C2 given they are blank OR not blank
+            worksheet.conditional_format('C2', {'type': 'no_blanks', 'format': rightborder_format})
+            worksheet.conditional_format('C2', {'type': 'blanks', 'format': rightborder_format})
+            
+            # Apply right borders to C4:C5 given they are blank OR not blank
+            worksheet.conditional_format('C4:C5', {'type': 'no_blanks', 'format': rightborder_format})
+            worksheet.conditional_format('C4:C5', {'type': 'blanks', 'format': rightborder_format})
+            
+            # Apply right and dashed bottom border to C4' given it is blank OR not blank
+            worksheet.conditional_format('C3', {'type': 'blanks', 'format': sideborder_format})
+            worksheet.conditional_format('C3', {'type': 'no_blanks', 'format': sideborder_format})
+            
+            # Apply corner border to C6 given it is blank OR not blank
+            worksheet.conditional_format('C6', {'type': 'no_blanks', 'format': cornerborder_format})
+            worksheet.conditional_format('C6', {'type': 'blanks', 'format': cornerborder_format})
+            
+            #set the file to open the column width to the length of a string
+            DensityAnalysiscolumnwidth = len("Temperature (°C)")
+            #worksheet.set_column(first_col, last_col, width, cell_format, options)
+            worksheet.set_column(0, 2, DensityAnalysiscolumnwidth)
+            
+            extra_sheetDensity = {
+           'Water Check': ['Water (1)', 'Water (2)']
+           }
+        additional_df = pd.DataFrame(extra_sheetDensity)
+        additional_df.to_excel(writer, index=False, sheet_name='Water Check', startrow=0, startcol=0)
+        worksheet = writer.sheets['Water Check']
+        headers = ['Water Check', 'Density (g/mL)', 'Temperature (°C)']
+        for i, header in enumerate(headers):
+            worksheet.write(0, i, header, bold_format)
+
+        # Write new row headers in Cresol Testing sheet
+        row_headers = ['Water (1)', 'Water (2)']
+        for i, header in enumerate(row_headers):
+            worksheet.write(i+1, 0, header, bold_format)
+            
         #set the file to open the column width to the length of a string
-        Dcolumnwidth = len("Temperature °C")
+        Densitycolumnwidth = len("Temperature (°C)")
         #worksheet.set_column(first_col, last_col, width, cell_format, options)
-        worksheet.set_column(0, 2, Dcolumnwidth)
+        worksheet.set_column(0, 2, Densitycolumnwidth)
     
     elif instrument == "Acids Titration":
         Acids_calc = [
@@ -497,9 +551,9 @@ def generate_excel_file(instrument):
         worksheet.conditional_format('G2:G4', {'type': 'no_blanks', 'format': rightborder_format})
         worksheet.conditional_format('G2:G4', {'type': 'blanks', 'format': rightborder_format})
             
-            # Apply corner border to G5 given it is not blank
+            # Apply corner border to G5 given it is blank OR not blank
         worksheet.conditional_format('G5', {'type': 'no_blanks', 'format': cornerborder_format})
-        
+        worksheet.conditional_format('G5', {'type': 'blanks', 'format': cornerborder_format})
     
             # Create an additional sheet and write additional data
         extra_sheetAcids = {'Sample ID': ["='Analysis'!A2"]
@@ -569,4 +623,4 @@ def main():
 if __name__ == '__main__':
     main()
     
-    
+     
