@@ -648,6 +648,29 @@ def generate_excel_file(instrument, num_request):
                 
             # Write the DataFrame to the default sheet
         df.to_excel(writer, index=False, sheet_name='Analysis', engine='xlsxwriter')
+        
+        extra_sheetViscosity = {
+           'Standard Check': ['Standard']
+           }
+        additional_df = pd.DataFrame(extra_sheetViscosity)
+        additional_df.to_excel(writer, index=False, sheet_name='Standard Check', startrow=0, startcol=0)
+        worksheet = writer.sheets['Standard Check']
+        #set the file to open the column width to the length of a string
+        viscositystandardcolumnwidth = len("Temperature (°C)")
+        #worksheet.set_column(first_col, last_col, width, cell_format, options)
+        worksheet.set_column(0, 4, viscositystandardcolumnwidth) 
+        headers = ['Standard Check', 'Viscosity (cP)', 'Torque (%)', 'Speed (RPM)', 'Temperature (°C)', 'Spindle']
+        for i, header in enumerate(headers):
+            worksheet.write(0, i, header, bold_format)
+
+        # Write new row headers in Cresol Testing sheet
+        row_headers = ['Standard']
+        for i, header in enumerate(row_headers):
+            worksheet.write(i+1, 0, header, bold_format)
+            
+        # Write the DataFrame to the default sheet
+        df.to_excel(writer, index=False, sheet_name='Analysis', engine='xlsxwriter')
+        worksheet = writer.sheets['Analysis']
 
     
     elif instrument == "Density Meter":
