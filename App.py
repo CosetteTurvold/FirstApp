@@ -2,12 +2,16 @@ import streamlit as st
 import pandas as pd
 import base64
 import xlsxwriter
- 
+
+#version currently running 7/19/24
 
 # Define the instruments and their corresponding column names
 instrument_columns = {
-    'Density Meter': ['Sample ID', 'Density (g/mL)', 'Temperature (°C)'],
-    'LECO CHN': ['Sample ID', 'Mass (g)', 'C%', 'H%', 'N%','O% (diff)'],
+    'Density Meter (Duplicate Analysis)': ['Sample ID', 'Density (g/mL)', 'Temperature (°C)'],
+    'Density Meter (Singlet Analysis)': ['Sample ID', 'Density (g/mL)', 'Temperature (°C)'],
+    'LECO CHN (Bio-Oil Method, Triplicate Analysis)': ['Sample ID', 'Mass (g)', 'C%', 'H%', 'N%','O% (diff)'],
+    'LECO CHN (Bio-Oil Method, Duplicate Analysis)': ['Sample ID', 'Mass (g)', 'C%', 'H%', 'N%','O% (diff)'],
+    'LECO CHN (Aqueous Method)': ['Sample ID', 'Mass (g)', 'C%'],
     'Karl Fischer': ['Sample ID','~Vol(μL)', 'Mass(g)', 'Titrant(mL)', 'H2O%'],
     'KF & LECO CHN Combined': ['Sample ID', 'Mass (g)', 'C%', 'H%', 'N%','O% (diff)', 'Water', 'C% Dry Basis', 'H% Dry Basis', 'O% Dry Basis'],
     'Viscometer': ['Sample ID', 'Viscosity (cP)','Torque (%)','Speed (rpm)', 'Temperature (°C)'],
@@ -47,8 +51,9 @@ def generate_excel_file(instrument, num_request):
                                'font_color': '#006100'})
     red_format = workbook.add_format({'bg_color':   '#FFC7CE',
                                'font_color': '#9C0006'})
+    
 #start creating different excel files for each instrument option
-    if instrument == "LECO CHN":
+    if instrument == "LECO CHN (Bio-Oil Method, Triplicate Analysis)":
         CHN_data = []
         CHN_template = [
             ['Sample 1','','','','', '=100-SUM(C2:E2)'],
@@ -266,6 +271,407 @@ def generate_excel_file(instrument, num_request):
            
         # Get the worksheet for the Cresol Testing sheet
             worksheet = writer.sheets['Cresol Testing']
+            worksheet = writer.sheets['Analysis']
+            
+    elif instrument == "LECO CHN (Bio-Oil Method, Duplicate Analysis)":
+        CHN_data = []
+        CHN_template = [
+            ['Sample 1','','','','', '=100-SUM(C2:E2)'],
+            ['Sample 1','','','','', '=100-SUM(C3:E3)'], 
+            ['', 'Average', '=AVERAGE(C2:C3)','=AVERAGE(D2:D3)','=AVERAGE(E2:E3)','=AVERAGE(F2:F3)'],
+            ['', 'StDev', '=STDEV(C2:C3)','=STDEV(D2:D3)','=STDEV(E2:E3)','=STDEV(F2:F3)'],
+            ['', 'RSD', '=C5/C4*100','=D5/D4*100','=E5/E4*100','=F5/F4*100'],
+        ]
+        average_row = 2  # Row number for Mean%
+        stdev_row = 3    # Row number for StDev%
+        rsd_row = 4      # Row number for RSD%
+        sample_row1 = 0 # Row number for "Sample X" labels
+        sample_row2 = 1
+        #for row in CHN_template:
+         #   df.loc[len(df)] = row
+
+        # Replicate CHN_data based on the number of samples
+        for sample_num in range(1, num_request + 1):
+            # Create a copy of the sample template for this sample
+            CHN_calc = [row[:] for row in CHN_template]
+
+            # Calculate the start row for this sample
+            start_row = (sample_num - 1) * 7 + 1 
+
+            # Update the stat formulas (average)
+            CHN_calc[average_row][2] = f'=AVERAGE(C{start_row + 1}:C{start_row + 2})' 
+            CHN_calc[average_row][3] = f'=AVERAGE(D{start_row + 1}:D{start_row + 2})'
+            CHN_calc[average_row][4] = f'=AVERAGE(E{start_row + 1}:E{start_row + 2})'
+            CHN_calc[average_row][5] = f'=AVERAGE(F{start_row + 1}:F{start_row + 2})'
+            # Update the stat formulas (stdev)
+            CHN_calc[stdev_row][2] = f'=STDEV(C{start_row + 1}:C{start_row + 2})'
+            CHN_calc[stdev_row][3] = f'=STDEV(D{start_row + 1}:D{start_row + 2})'
+            CHN_calc[stdev_row][4] = f'=STDEV(E{start_row + 1}:E{start_row + 2})'
+            CHN_calc[stdev_row][5] = f'=STDEV(F{start_row + 1}:F{start_row + 2})'
+            # Update the stat formulas (RSD)
+            CHN_calc[rsd_row][2] = f'=(C{start_row + 4})/(C{start_row + 3}) * 100' 
+            CHN_calc[rsd_row][3] = f'=(D{start_row + 4})/(D{start_row + 3}) * 100'
+            CHN_calc[rsd_row][4] = f'=(E{start_row + 4})/(E{start_row + 3}) * 100'
+            CHN_calc[rsd_row][5] = f'=(F{start_row + 4})/(F{start_row + 3}) * 100'
+            #make changes to the Oxygen calculations
+            CHN_calc[sample_row1][-1] = f'=100-SUM(C{start_row + 1}:E{start_row + 1})' 
+            CHN_calc[sample_row2][-1] = f'=100-SUM(C{start_row + 2}:E{start_row + 2})'
+            # Add the Sample label row
+            CHN_calc[sample_row1][0] = f'Sample {sample_num}'
+            CHN_calc[sample_row2][0] = f'Sample {sample_num}'
+            # Append the sample's data to CHN_data
+            CHN_data.extend(CHN_calc)
+
+            # Add an empty row between sample templates, but not after the last sample
+            if sample_num < num_request:
+                CHN_data.extend([[''] * len(CHN_template[0]), columns])
+
+        # Apply all borders, conditional formatting, and create the Excel file as before
+
+                
+            # Apply all borders to top row
+            worksheet.conditional_format(f'A{start_row}:F{start_row}', {'type': 'no_blanks', 'format': headerborder_format})
+            worksheet.conditional_format(f'A{start_row}:F{start_row}', {'type': 'blanks', 'format': headerborder_format})
+
+            # Apply bottom borders to A7:D7
+            worksheet.conditional_format(f'A{start_row + 5}:E{start_row + 5}', {'type': 'no_blanks', 'format': bottomborder_format}) 
+            worksheet.conditional_format(f'A{start_row + 5}:E{start_row + 5}', {'type': 'blanks', 'format': bottomborder_format})
+
+            # Apply dashed bottom borders to A4:D4
+            worksheet.conditional_format(f'A{start_row + 2}:E{start_row + 2}', {'type': 'no_blanks', 'format': dashedborder_format}) 
+            worksheet.conditional_format(f'A{start_row + 2}:E{start_row + 2}', {'type': 'blanks', 'format': dashedborder_format})
+
+            # Apply right borders to E2:E3
+            worksheet.conditional_format(f'F{start_row}:F{start_row + 1}', {'type': 'no_blanks', 'format': rightborder_format}) 
+            worksheet.conditional_format(f'F{start_row}:F{start_row + 1}', {'type': 'blanks', 'format': rightborder_format})
+            
+            # Apply right borders to E5:E6
+            worksheet.conditional_format(f'F{start_row + 3}:F{start_row + 4}', {'type': 'no_blanks', 'format': rightborder_format}) 
+            worksheet.conditional_format(f'F{start_row + 3}:F{start_row + 4}', {'type': 'blanks', 'format': rightborder_format})
+
+            # Apply right and dashed bottom border to E4
+            worksheet.conditional_format(f'F{start_row + 2}', {'type': 'blanks', 'format': sideborder_format}) 
+            worksheet.conditional_format(f'F{start_row + 2}', {'type': 'no_blanks', 'format': sideborder_format})
+
+            # Apply corner border to E7
+            worksheet.conditional_format(f'F{start_row + 5}', {'type': 'no_blanks', 'format': cornerborder_format})
+            worksheet.conditional_format(f'F{start_row + 5}', {'type': 'blanks', 'format': cornerborder_format})
+            
+            # Convert kf_data into a DataFrame for each sample
+            df = pd.DataFrame(CHN_data, columns=columns)
+            
+            # Apply conditional formatting to this sample
+            worksheet = writer.sheets['Analysis']
+                
+            # Write the DataFrame to the default sheet
+            df.to_excel(writer, index=False, sheet_name='Analysis', engine='xlsxwriter')
+        
+        
+        # Create an additional sheet and write additional data
+            extra_sheetCHN = {
+                'Data': ['Additional Data 1', 'Additional Data 2', 'Additional Data 3']
+                }
+            additional_df = pd.DataFrame(extra_sheetCHN)
+            additional_df.to_excel(writer, index=False, sheet_name='Cresol Testing', startrow=1, startcol=0)
+        # Get the worksheet for the Cresol Testing sheet
+            worksheet = writer.sheets['Cresol Testing']
+        
+        #set the file to open the column width to the length of a string
+            Cresolcolumnwidth = len("Cresol Triplicate ")
+        #worksheet.set_column(first_col, last_col, width, cell_format, options)
+            worksheet.set_column(0, 1, Cresolcolumnwidth)
+        
+        #set the file to open the column width to the length of a string
+            Cresolcolumnwidth = len("Cresol Measured")
+        #worksheet.set_column(first_col, last_col, width, cell_format, options)
+            worksheet.set_column(1, 1, Cresolcolumnwidth)
+                  
+        
+        #set conditional formatting for Cresol values in range green/red for in/out of range
+            worksheet.conditional_format('B2', {'type':     'cell',
+                                       'criteria': 'between',
+                                       'minimum':  77.0,
+                                       'maximum':  78.3,
+                                       'format':   green_format})
+            worksheet.conditional_format('B2', {'type':     'cell',
+                                       'criteria': 'not between',
+                                       'minimum':  77.0,
+                                       'maximum':  78.3,
+                                       'format':   red_format})
+        
+            worksheet.conditional_format('B3', {'type':     'cell',
+                                       'criteria': 'between',
+                                       'minimum':  7.4,
+                                       'maximum':  7.9,
+                                       'format':   green_format})
+            worksheet.conditional_format('B3', {'type':     'cell',
+                                       'criteria': 'not between',
+                                       'minimum':  7.4,
+                                       'maximum':  7.9,
+                                       'format':   red_format})
+        
+            worksheet.conditional_format('B5', {'type':     'cell',
+                                       'criteria': 'between',
+                                       'minimum':  14.0,
+                                       'maximum':  15.4,
+                                       'format':   green_format})
+        
+            worksheet.conditional_format('B5', {'type':     'cell',
+                                       'criteria': 'not between',
+                                       'minimum':  14.0,
+                                       'maximum':  15.4,
+                                       'format':   red_format})
+
+         # Write new column headers in Cresol Testing sheet
+            headers = ['Cresol Limit Testing', 'Cresol Measured', 'Average', 'Low-value', 'High-value']
+            for i, header in enumerate(headers):
+                     worksheet.write(0, i, header, bold_format)
+             
+        # Write new row headers in Cresol Testing sheet
+            row_headers = ['Carbon', 'Hydrogen', 'Nitrogen', 'Oxygen']
+            for i, header in enumerate(row_headers):
+                worksheet.write(i+1, 0, header, bold_format)
+                 
+
+       # Write Cresol Limits below the columns
+                cresol_limits = [
+                     ['','=C11', 77.7, 77.0, 78.3], 
+                     ['','=D11', 7.5, 7.4, 7.9],
+                     ['','=E11', 0.03, 0.0, 0.1],
+                     ['','=F11', 14.8, 14.0, 15.4]
+                     ]
+                for row_num, row_data in enumerate(cresol_limits):
+                    for col_num, cell_data in enumerate(row_data):
+                         worksheet.write(row_num + 1, col_num + 0, cell_data)      
+        #write a table to put the three cresol values from the CHN data
+            cresol_triplicate = [
+                ['Cresol Triplicate Check', 'Mass (g)', 'C%', 'H%', 'N%', 'O% (diff)'],
+                ['Cresol 1','','','','', '=100-SUM(C8:E8)'],
+                ['Cresol 2','','','','', '=100-SUM(C9:E9)'],
+                ['Cresol 3','','','','', '=100-SUM(C10:E10)'], 
+                ['', 'Average', '=AVERAGE(C8:C10)','=AVERAGE(D8:D10)','=AVERAGE(E8:E10)','=AVERAGE(F8:F10)'],
+                ['', 'StDev', '=STDEV(C8:C10)','=STDEV(D8:D10)','=STDEV(E8:E10)','=STDEV(F8:F10)'],
+                ['', 'RSD', '=C12/C11*100','=D12/D11*100','=E12/E11*100','=F12/F11*100'],
+                ]
+            for row_num, row_data in enumerate(cresol_triplicate):
+                for col_num, cell_data in enumerate(row_data):
+                      worksheet.write(row_num + 6, col_num + 0, cell_data)
+        
+        #write borders for the cresol triplicate data
+        
+        # Apply all borders to top row given they are blank OR not blank
+            worksheet.conditional_format('A7:F7', {'type': 'no_blanks', 'format': headerborder_format})
+            worksheet.conditional_format('A7:F7', {'type': 'blanks', 'format': headerborder_format})
+        
+        # Apply bottom borders to A13:E13 given they are blank OR not blank
+            worksheet.conditional_format('A13:E13', {'type': 'no_blanks', 'format': bottomborder_format})
+            worksheet.conditional_format('A13:E13', {'type': 'blanks', 'format': bottomborder_format})
+        
+        # Apply dashed bottom borders to A10:E10 given they are blank OR not blank
+            worksheet.conditional_format('A10:E10', {'type': 'no_blanks', 'format': dashedborder_format})
+            worksheet.conditional_format('A10:E10', {'type': 'blanks', 'format': dashedborder_format})
+        
+        # Apply right borders to F8:F9 given they are blank OR not blank
+            worksheet.conditional_format('F8:F9', {'type': 'no_blanks', 'format': rightborder_format})
+            worksheet.conditional_format('F8:F9', {'type': 'blanks', 'format': rightborder_format})
+        
+        # Apply right borders to F11:F12 given they are blank OR not blank
+            worksheet.conditional_format('F11:F12', {'type': 'no_blanks', 'format': rightborder_format})
+            worksheet.conditional_format('F11:F12', {'type': 'blanks', 'format': rightborder_format})
+        
+        # Apply right and dashed bottom border to F10 given it is not blank
+            worksheet.conditional_format('F10', {'type': 'no_blanks', 'format': sideborder_format})
+        
+        # Apply corner border to F13 given it is not blank
+            worksheet.conditional_format('F13', {'type': 'no_blanks', 'format': cornerborder_format})
+           
+        # Get the worksheet for the Cresol Testing sheet
+            worksheet = writer.sheets['Cresol Testing']
+            worksheet = writer.sheets['Analysis']
+            
+    elif instrument == "LECO CHN (Aqueous Method)":
+        CHN_dataAQ = []
+        CHN_templateAQ = [
+            ['Sample 1','', ''],
+            ['Sample 1','', ''],
+            ['Sample 1','', ''], 
+            ['','Average', '=AVERAGE(C2:C4)'],
+            ['','StDev', '=STDEV(C2:C4)'],
+            ['','RSD', '=C6/C5*100'],
+        ]
+        average_row = 3  # Row number for Mean%
+        stdev_row = 4    # Row number for StDev%
+        rsd_row = 5      # Row number for RSD%
+        sample_row1 = 0 # Row number for "Sample X" labels
+        sample_row2 = 1
+        sample_row3 = 2
+        #for row in CHN_template:
+         #   df.loc[len(df)] = row
+
+        # Replicate kf_calc based on the number of samples
+        for sample_num in range(1, num_request + 1):
+            # Create a copy of the sample template for this sample
+            CHN_calcAQ = [row[:] for row in CHN_templateAQ]
+
+            # Calculate the start row for this sample
+            start_row = (sample_num - 1) * 8 + 1
+
+            # Update the stat formulas (average)
+            CHN_calcAQ[average_row][2] = f'=AVERAGE(C{start_row + 1}:C{start_row + 3})'
+            
+            # Update the stat formulas (stdev)
+            CHN_calcAQ[stdev_row][2] = f'=STDEV(C{start_row + 1}:C{start_row + 3})'
+
+            # Update the stat formulas (RSD)
+            CHN_calcAQ[rsd_row][2] = f'=(C{start_row + 5})/(C{start_row + 4}) * 100'
+
+            # Add the Sample label row
+            CHN_calcAQ[sample_row1][0] = f'Sample {sample_num}'
+            CHN_calcAQ[sample_row2][0] = f'Sample {sample_num}'
+            CHN_calcAQ[sample_row3][0] = f'Sample {sample_num}'
+            # Append the sample's data to chn_dataAQ
+            CHN_dataAQ.extend(CHN_calcAQ)
+
+            # Add an empty row between sample templates, but not after the last sample
+            if sample_num < num_request:
+                CHN_dataAQ.extend([[''] * len(CHN_templateAQ[0]), columns])
+
+        # Apply all borders, conditional formatting, and create the Excel file as before
+
+                
+            # Apply all borders to top row
+            worksheet.conditional_format(f'A{start_row}:C{start_row}', {'type': 'no_blanks', 'format': headerborder_format})
+            worksheet.conditional_format(f'A{start_row}:C{start_row}', {'type': 'blanks', 'format': headerborder_format})
+
+            # Apply bottom borders to A7:D7
+            worksheet.conditional_format(f'A{start_row + 6}:B{start_row + 6}', {'type': 'no_blanks', 'format': bottomborder_format})
+            worksheet.conditional_format(f'A{start_row + 6}:B{start_row + 6}', {'type': 'blanks', 'format': bottomborder_format})
+
+            # Apply dashed bottom borders to A4:D4
+            worksheet.conditional_format(f'A{start_row + 3}:B{start_row + 3}', {'type': 'no_blanks', 'format': dashedborder_format})
+            worksheet.conditional_format(f'A{start_row + 3}:B{start_row + 3}', {'type': 'blanks', 'format': dashedborder_format})
+
+            # Apply right borders to E2:E3
+            worksheet.conditional_format(f'C{start_row + 1}:C{start_row + 2}', {'type': 'no_blanks', 'format': rightborder_format})
+            worksheet.conditional_format(f'C{start_row + 1}:C{start_row + 2}', {'type': 'blanks', 'format': rightborder_format})
+            
+            # Apply right borders to E5:E6
+            worksheet.conditional_format(f'C{start_row + 4}:C{start_row + 5}', {'type': 'no_blanks', 'format': rightborder_format})
+            worksheet.conditional_format(f'C{start_row + 4}:C{start_row + 5}', {'type': 'blanks', 'format': rightborder_format})
+
+            # Apply right and dashed bottom border to E4
+            worksheet.conditional_format(f'C{start_row + 3}', {'type': 'blanks', 'format': sideborder_format})
+            worksheet.conditional_format(f'C{start_row + 3}', {'type': 'no_blanks', 'format': sideborder_format})
+
+            # Apply corner border to E7
+            worksheet.conditional_format(f'C{start_row + 6}', {'type': 'no_blanks', 'format': cornerborder_format})
+            worksheet.conditional_format(f'C{start_row + 6}', {'type': 'blanks', 'format': cornerborder_format})
+            
+            # Convert kf_data into a DataFrame for each sample
+            df = pd.DataFrame(CHN_dataAQ, columns=columns)
+            
+            # Apply conditional formatting to this sample
+            worksheet = writer.sheets['Analysis']
+                
+            # Write the DataFrame to the default sheet
+            df.to_excel(writer, index=False, sheet_name='Analysis', engine='xlsxwriter')
+        
+        
+        # Create an additional sheet and write additional data
+            extra_sheetCHNAQ = {
+                'Data': ['', '', '']
+                }
+            additional_df = pd.DataFrame(extra_sheetCHNAQ)
+            additional_df.to_excel(writer, index=False, sheet_name='Soil Testing', startrow=1, startcol=0)
+        # Get the worksheet for the Cresol Testing sheet
+            worksheet = writer.sheets['Soil Testing']
+        
+        #set the file to open the column width to the length of a string
+            Soilcolumnwidth = len("Soil Triplicate ")
+        #worksheet.set_column(first_col, last_col, width, cell_format, options)
+            worksheet.set_column(0, 1, Soilcolumnwidth)
+        
+        #set the file to open the column width to the length of a string
+            Soilcolumnwidth = len("Soil Measured")
+        #worksheet.set_column(first_col, last_col, width, cell_format, options)
+            worksheet.set_column(1, 1, Soilcolumnwidth)
+                  
+        
+        #set conditional formatting for Cresol values in range green/red for in/out of range
+            worksheet.conditional_format('B2', {'type':     'cell',
+                                       'criteria': 'between',
+                                       'minimum':  0.744,
+                                       'maximum':  0.690,
+                                       'format':   green_format})
+            worksheet.conditional_format('B2', {'type':     'cell',
+                                       'criteria': 'not between',
+                                       'minimum':  0.744,
+                                       'maximum':  0.690,
+                                       'format':   red_format})
+
+         # Write new column headers in Soil Testing sheet
+            headers = ['Soil Limit Testing', 'Soil Measured', 'Average', 'Low-value', 'High-value']
+            for i, header in enumerate(headers):
+                     worksheet.write(0, i, header, bold_format)
+             
+        # Write new row headers in Soil Testing sheet
+            row_headers = ['Carbon']
+            for i, header in enumerate(row_headers):
+                worksheet.write(i+1, 0, header, bold_format)
+                 
+
+       # Write Cresol Limits below the columns
+                Soil_limits = [
+                     ['','=C8', 0.717, 0.690, 0.744]]
+                    
+                for row_num, row_data in enumerate(Soil_limits):
+                    for col_num, cell_data in enumerate(row_data):
+                         worksheet.write(row_num + 1, col_num + 0, cell_data)      
+        #write a table to put the three cresol values from the CHN data
+            Soil_triplicate = [
+                ['Soil Triplicate Check', 'Mass (g)', 'C%'],
+                ['Soil 1','',''],
+                ['Soil 2','',''],
+                ['Soil 3','',''], 
+                ['', 'Average', '=AVERAGE(C5:C7)'],
+                ['', 'StDev', '=STDEV(C5:C7)'],
+                ['', 'RSD', '=C9/C8*100'],
+                ]
+            for row_num, row_data in enumerate(Soil_triplicate):
+                for col_num, cell_data in enumerate(row_data):
+                      worksheet.write(row_num + 3, col_num + 0, cell_data)
+        
+        #write borders for the cresol triplicate data
+        
+        # Apply all borders to top row given they are blank OR not blank
+            worksheet.conditional_format('A4:C4', {'type': 'no_blanks', 'format': headerborder_format})
+            worksheet.conditional_format('A4:C4', {'type': 'blanks', 'format': headerborder_format})
+        
+        # Apply bottom borders to A13:E13 given they are blank OR not blank
+            worksheet.conditional_format('A10:B10', {'type': 'no_blanks', 'format': bottomborder_format})
+            worksheet.conditional_format('A10:B10', {'type': 'blanks', 'format': bottomborder_format})
+        
+        # Apply dashed bottom borders to A10:E10 given they are blank OR not blank
+            worksheet.conditional_format('A7:B7', {'type': 'no_blanks', 'format': dashedborder_format})
+            worksheet.conditional_format('A7:B7', {'type': 'blanks', 'format': dashedborder_format})
+        
+        # Apply right borders to F8:F9 given they are blank OR not blank
+            worksheet.conditional_format('C5:C6', {'type': 'no_blanks', 'format': rightborder_format})
+            worksheet.conditional_format('C5:C6', {'type': 'blanks', 'format': rightborder_format})
+        
+        # Apply right borders to F11:F12 given they are blank OR not blank
+            worksheet.conditional_format('C8:C9', {'type': 'no_blanks', 'format': rightborder_format})
+            worksheet.conditional_format('C8:C9', {'type': 'blanks', 'format': rightborder_format})
+        
+        # Apply right and dashed bottom border to C10 given it is blank OR not blank
+            worksheet.conditional_format('C7', {'type': 'no_blanks', 'format': sideborder_format})
+            worksheet.conditional_format('C7', {'type': 'blanks', 'format': sideborder_format})
+        
+        # Apply corner border to F13 given it is not blank
+            worksheet.conditional_format('C10', {'type': 'no_blanks', 'format': cornerborder_format})
+           
+        # Get the worksheet for the Cresol Testing sheet
+            worksheet = writer.sheets['Soil Testing']
             worksheet = writer.sheets['Analysis']
             
     elif instrument == "Karl Fischer":
@@ -673,7 +1079,7 @@ def generate_excel_file(instrument, num_request):
         worksheet = writer.sheets['Analysis']
 
     
-    elif instrument == "Density Meter":
+    elif instrument == "Density Meter (Duplicate Analysis)":
         density_data = []
         density_template = [
             ['Sample 1','', ''],
@@ -772,6 +1178,59 @@ def generate_excel_file(instrument, num_request):
         row_headers = ['Water (1)', 'Water (2)']
         for i, header in enumerate(row_headers):
             worksheet.write(i+1, 0, header, bold_format)
+            
+        # Write the DataFrame to the default sheet
+        df.to_excel(writer, index=False, sheet_name='Analysis', engine='xlsxwriter')
+        worksheet = writer.sheets['Analysis']
+        
+    elif instrument == "Density Meter (Singlet Analysis)":
+        density_data = []
+        density_template = [
+            ['Sample 1','', ''],
+        ]
+        sample_row1 = 0 # Row number for "Sample X" labels
+        
+        #set the file to open the column width to the length of a string
+        DensityAnalysiscolumnwidth = len("Temperature (°C)")
+        #worksheet.set_column(first_col, last_col, width, cell_format, options)
+        worksheet.set_column(0, 2, DensityAnalysiscolumnwidth)
+        
+        # Replicate kf_calc based on the number of samples
+        for sample_num in range(1, num_request + 1):
+        # Create a copy of the sample template for this sample
+            density_calc = [row[:] for row in density_template]
+  
+            density_calc[sample_row1][0] = f'Sample {sample_num}'
+            # Append the sample's data to kf_data
+            density_data.extend(density_calc)
+            
+            # Convert kf_data into a DataFrame for each sample
+        df = pd.DataFrame(density_data, columns=columns)
+            
+            # Apply conditional formatting to this sample
+        worksheet = writer.sheets['Analysis']
+                
+            # Write the DataFrame to the default sheet
+        df.to_excel(writer, index=False, sheet_name='Analysis', engine='xlsxwriter')
+            
+        extra_sheetDensity = {
+           'Water Check': ['Water']
+           }
+        additional_df = pd.DataFrame(extra_sheetDensity)
+        additional_df.to_excel(writer, index=False, sheet_name='Water Check', startrow=0, startcol=0)
+        worksheet = writer.sheets['Water Check']
+        #set the file to open the column width to the length of a string
+        densitywatercheckcolumnwidth = len("Temperature (°C)")
+        #worksheet.set_column(first_col, last_col, width, cell_format, options)
+        worksheet.set_column(0, 2, densitywatercheckcolumnwidth) 
+        headers = ['Water Check', 'Density (g/mL)', 'Temperature (°C)']
+        for i, header in enumerate(headers):
+            worksheet.write(0, i, header, bold_format)
+
+        # Write new row headers in Cresol Testing sheet
+        row_headers = ['Water']
+        for i, header in enumerate(row_headers):
+            worksheet.write(i+1, 0, header)
             
         # Write the DataFrame to the default sheet
         df.to_excel(writer, index=False, sheet_name='Analysis', engine='xlsxwriter')
